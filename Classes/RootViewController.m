@@ -8,6 +8,7 @@
 
 #import "RootViewController.h"
 #import "DrinkDetailViewController.h"
+#import "AddDrinkViewController.h"
 #import "DrinkConstants.h"
 
 
@@ -21,6 +22,13 @@
 
 - (IBAction)addButtonPressed:(id)sender {
 	NSLog(@"Add button pressed!");
+	AddDrinkViewController *addViewController = [[AddDrinkViewController alloc] 
+												 initWithNibName:@"DrinkDetailViewController" bundle:nil];
+	UINavigationController *addNavigationController = [[UINavigationController alloc] 
+													   initWithRootViewController:addViewController];
+	[self presentModalViewController:addNavigationController animated:YES];
+	[addViewController release];
+	[addNavigationController release];
 }
 
 - (void)viewDidLoad {
