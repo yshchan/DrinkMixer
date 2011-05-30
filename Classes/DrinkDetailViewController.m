@@ -13,6 +13,7 @@
 @implementation DrinkDetailViewController
 
 @synthesize drink;
+@synthesize scrollView;
 @synthesize nameTextField, ingredientsTextView, directionsTextView;
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -20,6 +21,11 @@
 	nameTextField.text = [drink objectForKey:NAME_KEY];
 	ingredientsTextView.text = [drink objectForKey:INGREDIENTS_KEY];
 	directionsTextView.text = [drink objectForKey:DIRECTIONS_KEY];
+}
+
+- (void)viewDidLoad {
+	[super viewDidLoad];
+	scrollView.contentSize = self.view.frame.size;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -38,6 +44,7 @@
 
 - (void)dealloc {
 	[drink release];
+	[scrollView release];
 	[nameTextField release];
 	[ingredientsTextView release];
 	[directionsTextView release];
