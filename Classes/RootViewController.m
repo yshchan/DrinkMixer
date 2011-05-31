@@ -24,6 +24,7 @@
 	NSLog(@"Add button pressed!");
 	AddDrinkViewController *addViewController = [[AddDrinkViewController alloc] 
 												 initWithNibName:@"DrinkDetailViewController" bundle:nil];
+	addViewController.drinkArray = self.drinks;
 	UINavigationController *addNavigationController = [[UINavigationController alloc] 
 													   initWithRootViewController:addViewController];
 	[self presentModalViewController:addNavigationController animated:YES];
@@ -43,11 +44,12 @@
 }
 
 
-/*
- - (void)viewWillAppear:(BOOL)animated {
- [super viewWillAppear:animated];
- }
- */
+
+- (void)viewWillAppear:(BOOL)animated {
+	[super viewWillAppear:animated];
+	[self.tableView reloadData];
+}
+
 /*
  - (void)viewDidAppear:(BOOL)animated {
  [super viewDidAppear:animated];
