@@ -37,13 +37,22 @@
 	NSString *path = [[NSBundle mainBundle] pathForResource:@"DrinksDirections" ofType:@"plist"];
 	drinks = [[NSMutableArray alloc] initWithContentsOfFile:path];
 	
-	//self.navigationItem.rightBarButtonItem = self.addButtonItem;
+	// Registar o observer de fim da aplicação
+	[[NSNotificationCenter defaultCenter] addObserver:self 
+									      selector:@selector(applicationWillTerminate:) 
+										  name:UIApplicationWillTerminateNotification
+   									      object: nil];
 	
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    self.navigationItem.leftBarButtonItem = self.editButtonItem;
 }
 
-
+- (void)applicationWillTerminate:(NSNotification *)notification {
+	NSLog(@"applicationWillTerminate !!!");
+	// WARNING !
+	// Este código dá problema num aparelho real... mais tarde descobrirei o motivo. Parece ser permisão de escrita.
+	NSString *path = [[NSBundle mainBundle] pathForResource:@"DrinksDirections" ofType:@"plist"];
+	[self.drinks writeToFile:path atomically:YES];
+}
 
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
@@ -116,19 +125,19 @@
  */
 
 
-/*
- // Override to support editing the table view.
- - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
- 
- if (editingStyle == UITableViewCellEditingStyleDelete) {
- // Delete the row from the data source.
- [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
- }   
- else if (editingStyle == UITableViewCellEditingStyleInsert) {
- // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
- }   
- }
- */
+
+// Override to support editing the table view.
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+	if (editingStyle == UITableViewCellEditingStyleDelete) {
+		// Delete the row from the data source.
+		[self.drinks removeObjectAtIndex:indexPath.row];
+		[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+	}   
+	else if (editingStyle == UITableViewCellEditingStyleInsert) {
+		// Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
+	}   
+}
+
 
 
 /*
@@ -151,11 +160,27 @@
 #pragma mark Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	DrinkDetailViewController *detailViewController = 
-	[[DrinkDetailViewController alloc] initWithNibName:@"DrinkDetailViewController" bundle:nil];
-	detailViewController.drink = [drinks objectAtIndex:indexPath.row];
-	[self.navigationController pushViewController:detailViewController animated:YES];
-	[detailViewController release];
+	if (!self.editing) {
+		DrinkDetailViewController *detailViewController = 
+			[[DrinkDetailViewController alloc] initWithNibName:@"DrinkDetailViewController" bundle:nil];
+		
+		detailViewController.drink = [drinks objectAtIndex:indexPath.row];
+		
+		[self.navigationController pushViewController:detailViewController animated:YES];
+		[detailViewController release];
+	} else {
+		AddDrinkViewController *editViewController = [[AddDrinkViewController alloc] 
+													  initWithNibName:@"DrinkDetailViewController" bundle:nil];
+		editViewController.drinkArray = self.drinks;
+		editViewController.drink = [self.drinks objectAtIndex:indexPath.row];
+		
+		UINavigationController *editNavigationController = [[UINavigationController alloc] 
+															initWithRootViewController:editViewController];		
+		[self presentModalViewController:editNavigationController animated:YES];
+		
+		[editViewController release];
+		[editNavigationController release];
+	}
 }
 
 
@@ -170,8 +195,8 @@
 }
 
 - (void)viewDidUnload {
-    // Relinquish ownership of anything that can be recreated in viewDidLoad or on demand.
-    // For example: self.myOutlet = nil;
+	// Remove os observers dessa classe
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 
